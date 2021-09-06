@@ -14,7 +14,7 @@ describe('AddedComment entities', () => {
   it('should throw error when payload not meet data type specification', () => {
     // Arrange
     const payload = {
-      title: 'New Comment',
+      content: 'New Comment',
       id: 12345,
       owner: 'owner',
     };

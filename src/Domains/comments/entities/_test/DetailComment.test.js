@@ -48,6 +48,7 @@ describe('DetailComment entities', () => {
       username: 'user1',
       date: '2021-08-08T07:22:33.555Z',
       content: 'New Comment',
+      is_delete: false,
     };
 
     // Action
@@ -59,5 +60,22 @@ describe('DetailComment entities', () => {
     expect(detailComment.username).toEqual(payload.username);
     expect(detailComment.date).toEqual(payload.date);
     expect(detailComment.content).toEqual(payload.content);
+  });
+
+  it('should replace content with template if comment was deleted', () => {
+    // Arrange
+    const payload = {
+      id: 'comment-qwerty',
+      username: 'user1',
+      date: '2021-08-08T07:22:33.555Z',
+      content: 'New Comment',
+      is_delete: true,
+    };
+
+    // Action
+    const detailComment = new DetailComment(payload);
+
+    // Assert
+    expect(detailComment.content).toEqual('**komentar telah dihapus**');
   });
 });

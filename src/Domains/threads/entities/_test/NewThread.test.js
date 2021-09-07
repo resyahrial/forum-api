@@ -16,6 +16,7 @@ describe('NewThread entities', () => {
     const payload = {
       title: 'New Thread',
       body: 12345,
+      userId: 'user-qwerty',
     };
 
     // Action & Assert
@@ -29,6 +30,7 @@ describe('NewThread entities', () => {
     const payload = {
       title: 'New Thread',
       body: 'How can I get gold armor?',
+      userId: 'user-qwerty',
     };
 
     // Action
@@ -38,5 +40,6 @@ describe('NewThread entities', () => {
     expect(newThread).toBeInstanceOf(NewThread);
     expect(newThread.title).toEqual(payload.title);
     expect(newThread.body).toEqual(payload.body);
+    expect(newThread.userId).toEqual(payload.userId);
   });
 });

@@ -5,11 +5,13 @@ class DetailComment {
     this.id = payload.id;
     this.username = payload.username;
     this.date = payload.date;
-    this.content = payload.content;
+    this.content = payload?.is_delete
+      ? '**komentar telah dihapus**'
+      : payload.content;
   }
 
   _verifyPayload(payload) {
-    const { id, username, date, content } = payload;
+    const { id, username, date, content, is_delete = false } = payload;
 
     if (!id || !username || !date || !content) {
       throw new Error('DETAIL_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
@@ -19,7 +21,8 @@ class DetailComment {
       typeof id !== 'string' ||
       typeof username !== 'string' ||
       typeof date !== 'string' ||
-      typeof content !== 'string'
+      typeof content !== 'string' ||
+      typeof is_delete !== 'boolean'
     ) {
       throw new Error('DETAIL_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
     }

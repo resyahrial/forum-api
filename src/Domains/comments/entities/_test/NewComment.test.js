@@ -16,7 +16,7 @@ describe('NewComment entities', () => {
     const payload = {
       content: 123456,
       threadId: 'thread-qwerty',
-      userId: 'user-qwerty',
+      owner: 'user-qwerty',
     };
 
     // Action & Assert
@@ -30,7 +30,7 @@ describe('NewComment entities', () => {
     const payload = {
       content: 'I think you need gacha',
       threadId: 'thread-qwerty',
-      userId: 'user-qwerty',
+      owner: 'user-qwerty',
     };
 
     // Action
@@ -40,6 +40,6 @@ describe('NewComment entities', () => {
     expect(newComment).toBeInstanceOf(NewComment);
     expect(newComment.content).toEqual(payload.content);
     expect(newComment.threadId).toEqual(payload.threadId);
-    expect(newComment.userId).toEqual(payload.userId);
+    expect(newComment.owner).toEqual(payload.owner);
   });
 });

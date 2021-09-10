@@ -3,6 +3,7 @@ const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
+const DetailComment = require('../../../Domains/comments/entities/DetailComment');
 
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
@@ -14,11 +15,13 @@ const AuthorizationError = require('../../../Commons/exceptions/AuthorizationErr
 describe('CommentRepositoryPostgres', () => {
   let mockOwner = '';
   let mockThreadId = '';
+  let username = '';
   beforeEach(async () => {
     // mock user
     await UsersTableTestHelper.addUser({});
     const users = await UsersTableTestHelper.findUsersById('user-123');
     mockOwner = users[0].id;
+    username = users[0].username;
 
     // mock thread
     await ThreadsTableTestHelper.addThread({ owner: mockOwner });
@@ -122,6 +125,64 @@ describe('CommentRepositoryPostgres', () => {
       await expect(
         commentRepositoryPostgres.verifyComment(correctPayload)
       ).resolves.not.toThrowError(AuthorizationError);
+    });
+  });
+
+  describe('deleteComment function', () => {
+    it('should soft delete comment', async () => {
+      // Arrange
+      await CommentsTableTestHelper.addComment({
+        owner: mockOwner,
+        threadId: mockThreadId,
+      }); // memasukan user baru dengan username dicoding
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // action
+      const deletedComment = await commentRepositoryPostgres.deleteComment(
+        'comment-123'
+      );
+      const comments = await CommentsTableTestHelper.findCommentById(
+        'comment-123'
+      );
+
+      // Assert
+      expect(deletedComment).toEqual({
+        id: 'comment-123',
+        is_delete: true,
+      });
+      expect(comments).toHaveLength(1);
+    });
+  });
+
+  describe('getCommentsByThreadId function', () => {
+    it('should return comments correctly', async () => {
+      // Arrange
+      const newCommentPayload = {
+        owner: mockOwner,
+        threadId: mockThreadId,
+        date: new Date().toLocaleString(),
+        content: 'New Comment',
+      };
+      await CommentsTableTestHelper.addComment({ ...newCommentPayload });
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // action
+      const commentsFirstThread =
+        await commentRepositoryPostgres.getCommentsByThreadId(mockThreadId);
+      const commentsSecondThread =
+        await commentRepositoryPostgres.getCommentsByThreadId('thread-456');
+
+      // Assert
+      expect(commentsFirstThread).toHaveLength(1);
+      expect(commentsFirstThread[0]).toStrictEqual(
+        new DetailComment({
+          id: 'comment-123',
+          username,
+          date: newCommentPayload.date,
+          content: newCommentPayload.content,
+        })
+      );
+      expect(commentsSecondThread).toHaveLength(0);
     });
   });
 });

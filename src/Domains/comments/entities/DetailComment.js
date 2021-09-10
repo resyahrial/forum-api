@@ -11,7 +11,8 @@ class DetailComment {
   }
 
   _verifyPayload(payload) {
-    const { id, username, date, content, is_delete = false } = payload;
+    const { id, username, date, content } = payload;
+    const is_delete = payload.is_delete || false;
 
     if (!id || !username || !date || !content) {
       throw new Error('DETAIL_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');

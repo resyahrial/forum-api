@@ -8,8 +8,8 @@ describe('AddThreadUseCase', () => {
   it('should orchestrating the add thread action correctly', async () => {
     // Arrange
     const useCasePayload = {
-      title: 'dicoding',
-      body: 'secret',
+      title: 'Title Thread',
+      body: 'Body Thread',
       owner: 'user-123',
     };
     const expectedAddedThread = new AddedThread({

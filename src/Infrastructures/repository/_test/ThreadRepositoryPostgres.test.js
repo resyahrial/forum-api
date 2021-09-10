@@ -11,10 +11,12 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 
 describe('ThreadRepositoryPostgres', () => {
   let mockOwner = '';
+  let mockUsername = '';
   beforeEach(async () => {
     await UsersTableTestHelper.addUser({});
     const users = await UsersTableTestHelper.findUsersById('user-123');
     mockOwner = users[0].id;
+    mockUsername = users[0].username;
   });
 
   afterEach(async () => {
@@ -83,7 +85,7 @@ describe('ThreadRepositoryPostgres', () => {
       );
 
       // Assert
-      expect(thread).toEqual(mockThreadPayload);
+      expect(thread).toEqual({ ...mockThreadPayload, username: mockUsername });
     });
   });
 });

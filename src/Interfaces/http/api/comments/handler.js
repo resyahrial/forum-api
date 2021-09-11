@@ -9,12 +9,13 @@ class ThreadHandler {
     this.deleteCommentHandler = this.deleteCommentHandler.bind(this);
   }
 
-  async postCommentHandler({ payload, auth }, h) {
+  async postCommentHandler({ payload, params, auth }, h) {
     const addCommentUseCase = this._container.getInstance(
       AddCommentUseCase.name
     );
     const addedComment = await addCommentUseCase.execute({
       ...payload,
+      threadId: params.threadId,
       owner: auth.credentials.id,
     });
     const response = h.response({
@@ -27,11 +28,14 @@ class ThreadHandler {
     return response;
   }
 
-  async deleteCommentHandler({ params }, h) {
+  async deleteCommentHandler({ params, auth }, h) {
     const deleteCommentUseCase = this._container.getInstance(
       DeleteCommentUseCase.name
     );
-    await deleteCommentUseCase.execute(params);
+    await deleteCommentUseCase.execute({
+      ...params,
+      owner: auth.credentials.id,
+    });
 
     const response = h
       .response({

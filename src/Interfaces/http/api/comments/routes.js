@@ -8,7 +8,7 @@ module.exports = (handler) => [
     },
   },
   {
-    method: 'POST',
+    method: 'DELETE',
     path: '/threads/{threadId}/comments/{commentId}',
     handler: handler.deleteCommentHandler,
     options: {

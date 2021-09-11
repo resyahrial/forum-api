@@ -37,6 +37,4 @@ describe('HTTP server', () => {
     expect(responseJson.status).toEqual('error');
     expect(responseJson.message).toEqual('terjadi kegagalan pada server kami');
   });
-
-  it('should decoded jwt artifact correctly', () => {});
 });

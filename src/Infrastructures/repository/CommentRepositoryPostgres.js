@@ -27,18 +27,9 @@ class CommentRepositoryPostgres extends CommentRepository {
   }
 
   async verifyComment({ commentId, owner }) {
-    const query = {
-      text: 'SELECT owner FROM comments WHERE id = $1',
-      values: [commentId],
-    };
+    const comment = await this.verifyCommentAvailability(commentId);
 
-    const { rows } = await this._pool.query(query);
-
-    if (!rows.length) {
-      throw new NotFoundError('Comment tidak ditemukan');
-    }
-
-    const isUserAuthorize = rows[0].owner === owner;
+    const isUserAuthorize = comment.owner === owner;
     if (!isUserAuthorize) {
       throw new AuthorizationError('Anda tidak berhak atas comment ini');
     }
@@ -69,6 +60,21 @@ class CommentRepositoryPostgres extends CommentRepository {
     const { rows } = await this._pool.query(query);
 
     return rows.map((row) => new DetailComment(row));
+  }
+
+  async verifyCommentAvailability(commentId) {
+    const query = {
+      text: 'SELECT owner FROM comments WHERE id = $1',
+      values: [commentId],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    if (!rows.length) {
+      throw new NotFoundError('Comment tidak ditemukan');
+    }
+
+    return rows[0];
   }
 }
 

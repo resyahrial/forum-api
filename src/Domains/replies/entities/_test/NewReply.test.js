@@ -15,7 +15,6 @@ describe('NewReply entities', () => {
     // Arrange
     const payload = {
       content: 123456,
-      threadId: 'thread-qwerty',
       commentId: 'comment-qwerty',
       owner: 'user-qwerty',
     };
@@ -30,7 +29,6 @@ describe('NewReply entities', () => {
     // Arrange
     const payload = {
       content: 'I think you need gacha',
-      threadId: 'thread-qwerty',
       commentId: 'comment-qwerty',
       owner: 'user-qwerty',
     };
@@ -41,7 +39,6 @@ describe('NewReply entities', () => {
     // Assert
     expect(newReply).toBeInstanceOf(NewReply);
     expect(newReply.content).toEqual(payload.content);
-    expect(newReply.threadId).toEqual(payload.threadId);
     expect(newReply.commentId).toEqual(payload.commentId);
     expect(newReply.owner).toEqual(payload.owner);
   });

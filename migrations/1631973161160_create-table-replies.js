@@ -1,5 +1,5 @@
 exports.up = (pgm) => {
-  pgm.createTable('comments', {
+  pgm.createTable('replies', {
     id: {
       type: 'VARCHAR(50)',
       primaryKey: true,
@@ -18,10 +18,10 @@ exports.up = (pgm) => {
       references: 'users',
       onDelete: 'CASCADE',
     },
-    thread_id: {
+    comment_id: {
       type: 'VARCHAR(50)',
       notNull: true,
-      references: 'threads',
+      references: 'comments',
       onDelete: 'CASCADE',
     },
     is_delete: {

@@ -14,29 +14,38 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 
 describe('ReplyRepositoryPostgres', () => {
-  let mockOwner = '';
-  let mockThreadId = '';
+  const mockOwner = 'user-123';
+  const mockThreadId = 'thread-123';
+  const mockCommentId = 'comment-123';
   let username = '';
-  beforeEach(async () => {
+
+  beforeAll(async () => {
     // mock user
     await UsersTableTestHelper.addUser({});
-    const users = await UsersTableTestHelper.findUsersById('user-123');
-    mockOwner = users[0].id;
+    const users = await UsersTableTestHelper.findUsersById(mockOwner);
     username = users[0].username;
 
     // mock thread
-    await ThreadsTableTestHelper.addThread({ owner: mockOwner });
-    const threads = await ThreadsTableTestHelper.findThreadById('thread-123');
-    mockThreadId = threads[0].id;
+    await ThreadsTableTestHelper.addThread({
+      id: mockThreadId,
+      owner: mockOwner,
+    });
+
+    // mock comment
+    await CommentsTableTestHelper.addComment({
+      id: mockCommentId,
+      owner: mockOwner,
+    });
   });
 
   afterEach(async () => {
     await RepliesTableTestHelper.cleanTable();
-    await ThreadsTableTestHelper.cleanTable();
-    await UsersTableTestHelper.cleanTable();
   });
 
   afterAll(async () => {
+    await CommentsTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
     await pool.end();
   });
 
@@ -45,7 +54,7 @@ describe('ReplyRepositoryPostgres', () => {
       // arrange
       const newReplyPayload = {
         content: 'Reply content',
-        threadId: mockThreadId,
+        commentId: mockCommentId,
         owner: mockOwner,
       };
       const newReply = new NewReply(newReplyPayload);
@@ -73,8 +82,8 @@ describe('ReplyRepositoryPostgres', () => {
       // Arrange
       await RepliesTableTestHelper.addReply({
         owner: mockOwner,
-        threadId: mockThreadId,
-      }); // memasukan user baru dengan username dicoding
+        commentId: mockCommentId,
+      });
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 
       // Action & Assert
@@ -90,8 +99,8 @@ describe('ReplyRepositoryPostgres', () => {
       // Arrange
       await RepliesTableTestHelper.addReply({
         owner: mockOwner,
-        threadId: mockThreadId,
-      }); // memasukan user baru dengan username dicoding
+        commentId: mockCommentId,
+      });
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 
       // Action & Assert
@@ -107,7 +116,7 @@ describe('ReplyRepositoryPostgres', () => {
       // Arrange
       await RepliesTableTestHelper.addReply({
         owner: mockOwner,
-        threadId: mockThreadId,
+        commentId: mockCommentId,
       });
       const correctPayload = {
         replyId: 'reply-123',
@@ -130,8 +139,8 @@ describe('ReplyRepositoryPostgres', () => {
       // Arrange
       await RepliesTableTestHelper.addReply({
         owner: mockOwner,
-        threadId: mockThreadId,
-      }); // memasukan user baru dengan username dicoding
+        commentId: mockCommentId,
+      });
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 
       // action
@@ -154,7 +163,7 @@ describe('ReplyRepositoryPostgres', () => {
       // Arrange
       const newReplyPayload = {
         owner: mockOwner,
-        threadId: mockThreadId,
+        commentId: mockCommentId,
         date: new Date().toLocaleString(),
         content: 'New Reply',
       };
@@ -162,14 +171,14 @@ describe('ReplyRepositoryPostgres', () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 
       // action
-      const repliesFirstThread =
-        await replyRepositoryPostgres.getRepliesByThreadId(mockThreadId);
-      const repliesSecondThread =
-        await replyRepositoryPostgres.getRepliesByThreadId('thread-456');
+      const repliesFirstComment =
+        await replyRepositoryPostgres.getRepliesByCommentId(mockCommentId);
+      const repliesSecondComment =
+        await replyRepositoryPostgres.getRepliesByCommentId('comment-456');
 
       // Assert
-      expect(repliesFirstThread).toHaveLength(1);
-      expect(repliesFirstThread[0]).toStrictEqual(
+      expect(repliesFirstComment).toHaveLength(1);
+      expect(repliesFirstComment[0]).toStrictEqual(
         new DetailReply({
           id: 'reply-123',
           username,
@@ -177,7 +186,7 @@ describe('ReplyRepositoryPostgres', () => {
           content: newReplyPayload.content,
         })
       );
-      expect(repliesSecondThread).toHaveLength(0);
+      expect(repliesSecondComment).toHaveLength(0);
     });
   });
 });

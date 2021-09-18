@@ -13,7 +13,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
 
   async addReply(newReply) {
     const { content, commentId, owner } = newReply;
-    const id = `comment-${this._idGenerator()}`;
+    const id = `reply-${this._idGenerator()}`;
     const date = new Date().toISOString();
 
     const query = {
@@ -55,7 +55,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     return rows[0];
   }
 
-  async getReplysByCommentId(commentId) {
+  async getRepliesByCommentId(commentId) {
     const query = {
       text: `
         SELECT replies.*, users.username

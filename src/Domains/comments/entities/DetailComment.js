@@ -11,14 +11,14 @@ class DetailComment {
       ? '**komentar telah dihapus**'
       : payload.content;
     this.replies = payload?.replies?.map((reply) => new DetailReply(reply));
-    this.likeCount = +payload.like_count;
+    this.likeCount = +payload.like_count || 0;
   }
 
   _verifyPayload(payload) {
     const { id, username, date, content, replies = [], like_count } = payload;
     const is_delete = payload.is_delete || false;
 
-    if (!id || !username || !date || !content || !like_count) {
+    if (!id || !username || !date || !content) {
       throw new Error('DETAIL_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
     }
 

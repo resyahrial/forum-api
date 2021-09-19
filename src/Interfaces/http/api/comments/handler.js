@@ -1,11 +1,11 @@
 const AddCommentUseCase = require('../../../../Applications/use_case/AddCommentUseCase');
 const DeleteCommentUseCase = require('../../../../Applications/use_case/DeleteCommentUseCase');
 
-class ThreadHandler {
+class CommentsHandler {
   constructor(container) {
     this._container = container;
 
-    this.postCommentHandler = this.postCommentHandler.bind(this);
+    this.posts = this.postCommentHandler.bind(this);
     this.deleteCommentHandler = this.deleteCommentHandler.bind(this);
   }
 
@@ -41,4 +41,4 @@ class ThreadHandler {
   }
 }
 
-module.exports = ThreadHandler;
+module.exports = CommentsHandler;

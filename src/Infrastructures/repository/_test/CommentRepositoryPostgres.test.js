@@ -2,8 +2,6 @@ const pool = require('../../database/postgres/pool');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 
 const NewComment = require('../../../Domains/comments/entities/NewComment');
-const AddedComment = require('../../../Domains/comments/entities/AddedComment');
-const DetailComment = require('../../../Domains/comments/entities/DetailComment');
 
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
@@ -59,12 +57,14 @@ describe('CommentRepositoryPostgres', () => {
         'comment-123'
       );
       expect(comments).toHaveLength(1);
-      expect(addedComment).toStrictEqual(
-        new AddedComment({
-          ...newCommentPayload,
-          id: 'comment-123',
-        })
-      );
+      delete newCommentPayload.threadId;
+      expect(addedComment).toStrictEqual({
+        ...newCommentPayload,
+        id: 'comment-123',
+        thread_id: mockThreadId,
+        is_delete: null,
+        date: addedComment.date,
+      });
     });
   });
 
@@ -154,15 +154,15 @@ describe('CommentRepositoryPostgres', () => {
 
       // Assert
       expect(commentsFirstThread).toHaveLength(1);
-      expect(commentsFirstThread[0]).toStrictEqual(
-        new DetailComment({
-          id: 'comment-123',
-          username,
-          date: newCommentPayload.date,
-          content: newCommentPayload.content,
-        })
-      );
       expect(commentsSecondThread).toHaveLength(0);
+      delete newCommentPayload.threadId;
+      expect(commentsFirstThread[0]).toStrictEqual({
+        ...newCommentPayload,
+        id: 'comment-123',
+        username,
+        thread_id: mockThreadId,
+        is_delete: null,
+      });
     });
   });
 

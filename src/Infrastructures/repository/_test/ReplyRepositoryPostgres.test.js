@@ -2,8 +2,6 @@ const pool = require('../../database/postgres/pool');
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 
 const NewReply = require('../../../Domains/replies/entities/NewReply');
-const AddedReply = require('../../../Domains/replies/entities/AddedReply');
-const DetailReply = require('../../../Domains/replies/entities/DetailReply');
 
 const RepliesTableTestHelper = require('../../../../tests/RepliesTableTestHelper');
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
@@ -65,15 +63,17 @@ describe('ReplyRepositoryPostgres', () => {
       );
 
       const addedReply = await replyRepositoryPostgres.addReply(newReply);
-
       const replies = await RepliesTableTestHelper.findReplyById('reply-123');
+
       expect(replies).toHaveLength(1);
-      expect(addedReply).toStrictEqual(
-        new AddedReply({
-          ...newReplyPayload,
-          id: 'reply-123',
-        })
-      );
+      delete newReplyPayload.commentId;
+      expect(addedReply).toStrictEqual({
+        ...newReplyPayload,
+        id: 'reply-123',
+        comment_id: mockCommentId,
+        is_delete: null,
+        date: addedReply.date,
+      });
     });
   });
 
@@ -178,14 +178,14 @@ describe('ReplyRepositoryPostgres', () => {
 
       // Assert
       expect(repliesFirstComment).toHaveLength(1);
-      expect(repliesFirstComment[0]).toStrictEqual(
-        new DetailReply({
-          id: 'reply-123',
-          username,
-          date: newReplyPayload.date,
-          content: newReplyPayload.content,
-        })
-      );
+      delete newReplyPayload.commentId;
+      expect(repliesFirstComment[0]).toStrictEqual({
+        ...newReplyPayload,
+        id: 'reply-123',
+        username,
+        comment_id: mockCommentId,
+        is_delete: null,
+      });
       expect(repliesSecondComment).toHaveLength(0);
     });
   });

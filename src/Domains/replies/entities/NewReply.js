@@ -1,4 +1,4 @@
-class NewComment {
+class NewReply {
   constructor(payload) {
     this._verifyPayload(payload);
 
@@ -22,4 +22,4 @@ class NewComment {
   }
 }
 
-module.exports = NewComment;
+module.exports = NewReply;

@@ -5,7 +5,7 @@ class CommentsHandler {
   constructor(container) {
     this._container = container;
 
-    this.posts = this.postCommentHandler.bind(this);
+    this.postCommentHandler = this.postCommentHandler.bind(this);
     this.deleteCommentHandler = this.deleteCommentHandler.bind(this);
   }
 
@@ -18,14 +18,15 @@ class CommentsHandler {
       threadId: params.threadId,
       owner: auth.credentials.id,
     });
-    const response = h.response({
-      status: 'success',
-      data: {
-        addedComment,
-      },
-    });
-    response.code(201);
-    return response;
+
+    return h
+      .response({
+        status: 'success',
+        data: {
+          addedComment,
+        },
+      })
+      .code(201);
   }
 
   async deleteCommentHandler({ params, auth }, h) {

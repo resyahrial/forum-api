@@ -7,7 +7,7 @@ const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 
 const GetDetailThreadUseCase = require('../GetDetailThreadUseCase');
 
-describe('AddCommentUseCase', () => {
+describe('GetDetailThreadUseCase', () => {
   it('should orchestrating the get detail thread action correctly', async () => {
     // Arrange
     const useCasePayload = 'thread-123';
@@ -24,12 +24,14 @@ describe('AddCommentUseCase', () => {
         username: 'username-user-123',
         date: new Date('September 10, 2021 11:00:00').toISOString(),
         content: 'Comment Content 1',
+        like_count: '0',
       },
       {
         id: 'comment-456',
         username: 'username-user-456',
         date: new Date('September 10, 2021 12:00:00').toISOString(),
         content: 'Comment Content 2',
+        like_count: '0',
       },
     ];
     const replies = [

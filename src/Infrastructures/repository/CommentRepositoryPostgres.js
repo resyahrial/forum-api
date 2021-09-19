@@ -47,12 +47,14 @@ class CommentRepositoryPostgres extends CommentRepository {
   async getCommentsByThreadId(threadId) {
     const query = {
       text: `
-        SELECT comments.*, users.username
-        FROM comments 
+        SELECT comments.*, users.username, COUNT(comment_likes.comment_id) as like_count
+        FROM comments
         LEFT JOIN users ON comments.owner = users.id
-        WHERE thread_id = $1
+        LEFT JOIN comment_likes ON comments.id = comment_likes.comment_id
+        WHERE comments.thread_id = $1
+        GROUP BY comment_likes.comment_id, comments.id, users.username
         ORDER BY comments.date
-      `,
+        `,
       values: [threadId],
     };
 
@@ -72,6 +74,40 @@ class CommentRepositoryPostgres extends CommentRepository {
     if (!rows.length) {
       throw new NotFoundError('Comment tidak ditemukan');
     }
+
+    return rows[0];
+  }
+
+  async verifyLikeComment({ commentId, userId }) {
+    const query = {
+      text: 'SELECT id FROM comment_likes WHERE comment_id = $1 AND user_id = $2',
+      values: [commentId, userId],
+    };
+
+    const { rowCount } = await this._pool.query(query);
+
+    return !!rowCount;
+  }
+
+  async likeComment({ commentId, userId }) {
+    const id = `comment-like-${this._idGenerator()}`;
+    const query = {
+      text: 'INSERT INTO comment_likes VALUES($1, $2, $3) RETURNING id',
+      values: [id, commentId, userId],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    return rows[0];
+  }
+
+  async unlikeComment({ commentId, userId }) {
+    const query = {
+      text: 'DELETE FROM comment_likes WHERE comment_id = $1 AND user_id = $2 RETURNING id',
+      values: [commentId, userId],
+    };
+
+    const { rows } = await this._pool.query(query);
 
     return rows[0];
   }

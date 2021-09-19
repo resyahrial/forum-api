@@ -6,6 +6,7 @@ const NewComment = require('../../../Domains/comments/entities/NewComment');
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
+const LikesCommentTableTestHelper = require('../../../../tests/LikesCommentTableTestHelper');
 
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
@@ -26,6 +27,7 @@ describe('CommentRepositoryPostgres', () => {
 
   afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
+    await LikesCommentTableTestHelper.cleanTable();
   });
 
   afterAll(async () => {
@@ -144,7 +146,11 @@ describe('CommentRepositoryPostgres', () => {
         content: 'New Comment',
       };
       await CommentsTableTestHelper.addComment({ ...newCommentPayload });
-      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+      const fakeIdGenerator = () => '123';
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(
+        pool,
+        fakeIdGenerator
+      );
 
       // action
       const commentsFirstThread =
@@ -162,6 +168,7 @@ describe('CommentRepositoryPostgres', () => {
         username,
         thread_id: mockThreadId,
         is_delete: null,
+        like_count: '0',
       });
     });
   });
@@ -196,6 +203,88 @@ describe('CommentRepositoryPostgres', () => {
 
       // Assert
       expect(comment).toStrictEqual({ owner: mockOwner });
+    });
+  });
+
+  describe('verifyLikeComment function', () => {
+    it('should return like comment availability', async () => {
+      // Arrange
+      await CommentsTableTestHelper.addComment({});
+      await LikesCommentTableTestHelper.addLikes({});
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action
+      const validLike = await commentRepositoryPostgres.verifyLikeComment({
+        commentId: 'comment-123',
+        userId: mockOwner,
+      });
+      const invalidLikeByComment =
+        await commentRepositoryPostgres.verifyLikeComment({
+          commentId: 'comment-456',
+          userId: 'user-123',
+        });
+      const invalidLikeByUser =
+        await commentRepositoryPostgres.verifyLikeComment({
+          commentId: 'comment-123',
+          userId: 'user-456',
+        });
+
+      // Action & Assert
+      expect(validLike).toBeTruthy();
+      expect(invalidLikeByComment).toBeFalsy();
+      expect(invalidLikeByUser).toBeFalsy();
+    });
+  });
+
+  describe('likeComment function', () => {
+    it('should persist like comment and return added like comment correctly', async () => {
+      // Arrange
+      const payload = {
+        commentId: 'comment-123',
+        userId: mockOwner,
+      };
+      await CommentsTableTestHelper.addComment({});
+      const fakeIdGenerator = () => '123';
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(
+        pool,
+        fakeIdGenerator
+      );
+
+      // Action
+      const addedLikeComment = await commentRepositoryPostgres.likeComment(
+        payload
+      );
+      const likeComment = await LikesCommentTableTestHelper.findLikeCommentById(
+        addedLikeComment.id
+      );
+
+      // Action & Assert
+      expect(likeComment[0]).toStrictEqual({
+        id: addedLikeComment.id,
+        comment_id: payload.commentId,
+        user_id: payload.userId,
+      });
+    });
+  });
+
+  describe('unlikeComment function', () => {
+    it('should delete like comment', async () => {
+      // Arrange
+      await CommentsTableTestHelper.addComment({});
+      await LikesCommentTableTestHelper.addLikes({});
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action
+      const unlikeComment = await commentRepositoryPostgres.unlikeComment({
+        commentId: 'comment-123',
+        userId: mockOwner,
+      });
+      const result = await LikesCommentTableTestHelper.findLikeCommentById(
+        unlikeComment.id
+      );
+
+      // Action & Assert
+      expect(result.length).toEqual(0);
     });
   });
 });

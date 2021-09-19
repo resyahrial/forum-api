@@ -9,7 +9,7 @@ const container = require('../../container');
 describe('HTTP server', () => {
   afterAll(async () => {
     await UsersTableTestHelper.cleanTable();
-    pool.end();
+    await pool.end();
   });
 
   it('should response 404 when request unregistered route', async () => {

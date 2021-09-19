@@ -37,12 +37,7 @@ class ThreadHandler {
       owner: auth.credentials.id,
     });
 
-    const response = h
-      .response({
-        status: 'success',
-      })
-      .code(200);
-    return response;
+    return { status: 'success' };
   }
 }
 

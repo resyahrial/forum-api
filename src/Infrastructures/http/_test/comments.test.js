@@ -11,7 +11,7 @@ describe('/threads/{threadId}/comments endpoint', () => {
   const createInjectServer = async (route = {}, authId = mockUserId) => {
     const server = await createServer(container);
 
-    const response = await server.inject({
+    return server.inject({
       ...route,
       auth: {
         strategy: 'forum_api_jwt',
@@ -20,8 +20,6 @@ describe('/threads/{threadId}/comments endpoint', () => {
         },
       },
     });
-
-    return response;
   };
 
   beforeAll(async () => {

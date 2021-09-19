@@ -21,5 +21,14 @@ describe('CommentRepository interface', () => {
     await expect(
       commentRepository.verifyCommentAvailability('')
     ).rejects.toThrowError('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+    await expect(commentRepository.verifyLikeComment('')).rejects.toThrowError(
+      'COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED'
+    );
+    await expect(commentRepository.likeComment('')).rejects.toThrowError(
+      'COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED'
+    );
+    await expect(commentRepository.unlikeComment('')).rejects.toThrowError(
+      'COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED'
+    );
   });
 });

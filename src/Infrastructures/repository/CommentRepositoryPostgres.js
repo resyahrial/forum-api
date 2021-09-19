@@ -1,8 +1,6 @@
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const CommentRepository = require('../../Domains/comments/CommentRepository');
-const AddedComment = require('../../Domains/comments/entities/AddedComment');
-const DetailComment = require('../../Domains/comments/entities/DetailComment');
 
 class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
@@ -23,22 +21,13 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     const { rows } = await this._pool.query(query);
 
-    return new AddedComment({ ...rows[0] });
+    return rows[0];
   }
 
   async verifyComment({ commentId, owner }) {
-    const query = {
-      text: 'SELECT owner FROM comments WHERE id = $1',
-      values: [commentId],
-    };
+    const comment = await this.verifyCommentAvailability(commentId);
 
-    const { rows } = await this._pool.query(query);
-
-    if (!rows.length) {
-      throw new NotFoundError('Comment tidak ditemukan');
-    }
-
-    const isUserAuthorize = rows[0].owner === owner;
+    const isUserAuthorize = comment.owner === owner;
     if (!isUserAuthorize) {
       throw new AuthorizationError('Anda tidak berhak atas comment ini');
     }
@@ -62,13 +51,29 @@ class CommentRepositoryPostgres extends CommentRepository {
         FROM comments 
         LEFT JOIN users ON comments.owner = users.id
         WHERE thread_id = $1
+        ORDER BY comments.date
       `,
       values: [threadId],
     };
 
     const { rows } = await this._pool.query(query);
 
-    return rows.map((row) => new DetailComment(row));
+    return rows;
+  }
+
+  async verifyCommentAvailability(commentId) {
+    const query = {
+      text: 'SELECT owner FROM comments WHERE id = $1',
+      values: [commentId],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    if (!rows.length) {
+      throw new NotFoundError('Comment tidak ditemukan');
+    }
+
+    return rows[0];
   }
 }
 

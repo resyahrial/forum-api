@@ -1,7 +1,7 @@
 const AddThreadUseCase = require('../../../../Applications/use_case/AddThreadUseCase');
 const GetDetailThreadUseCase = require('../../../../Applications/use_case/GetDetailThreadUseCase');
 
-class ThreadHandler {
+class ThreadsHandler {
   constructor(container) {
     this._container = container;
 
@@ -43,4 +43,4 @@ class ThreadHandler {
   }
 }
 
-module.exports = ThreadHandler;
+module.exports = ThreadsHandler;

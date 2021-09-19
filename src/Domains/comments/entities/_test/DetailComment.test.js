@@ -18,6 +18,7 @@ describe('DetailComment entities', () => {
       username: 'user1',
       date: '2021-08-08T07:22:33.555Z',
       content: 'New Comment',
+      replies: [],
     };
 
     // Action & Assert
@@ -33,6 +34,7 @@ describe('DetailComment entities', () => {
       username: 'user1',
       date: 'asd',
       content: 'New Comment',
+      replies: [],
     };
 
     // Action & Assert
@@ -49,6 +51,7 @@ describe('DetailComment entities', () => {
       date: '2021-08-08T07:22:33.555Z',
       content: 'New Comment',
       is_delete: false,
+      replies: [],
     };
 
     // Action
@@ -70,6 +73,7 @@ describe('DetailComment entities', () => {
       date: '2021-08-08T07:22:33.555Z',
       content: 'New Comment',
       is_delete: true,
+      replies: [],
     };
 
     // Action

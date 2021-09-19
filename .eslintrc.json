@@ -18,6 +18,8 @@
     "comma-dangle": "off",
     "operator-linebreak": "off",
     "object-curly-newline": "off",
-    "camelcase": "off"
+    "camelcase": "off",
+    "implicit-arrow-linebreak": "off",
+    "function-paren-newline": "off"
   }
 }

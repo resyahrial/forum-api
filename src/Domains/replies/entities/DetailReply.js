@@ -1,4 +1,4 @@
-class DetailComment {
+class DetailReply {
   constructor(payload) {
     this._verifyPayload(payload);
 
@@ -34,4 +34,4 @@ class DetailComment {
   }
 }
 
-module.exports = DetailComment;
+module.exports = DetailReply;

@@ -9,7 +9,7 @@ class DetailThread {
     this.body = payload.body;
     this.date = payload.date;
     this.username = payload.username;
-    this.comments = payload.comments.map(
+    this.comments = payload?.comments?.map(
       (comment) => new DetailComment(comment)
     );
   }

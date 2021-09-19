@@ -2,7 +2,6 @@ const pool = require('../../database/postgres/pool');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 
 const NewThread = require('../../../Domains/threads/entities/NewThread');
-const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
@@ -44,15 +43,14 @@ describe('ThreadRepositoryPostgres', () => {
       );
 
       const addedThread = await threadRepositoryPostgres.addThread(newThread);
-
       const threads = await ThreadsTableTestHelper.findThreadById('thread-123');
+
       expect(threads).toHaveLength(1);
-      expect(addedThread).toStrictEqual(
-        new AddedThread({
-          ...newThreadPayload,
-          id: 'thread-123',
-        })
-      );
+      expect(addedThread).toStrictEqual({
+        ...newThreadPayload,
+        id: 'thread-123',
+        date: addedThread.date,
+      });
     });
   });
 

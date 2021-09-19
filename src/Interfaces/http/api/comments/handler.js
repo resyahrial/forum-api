@@ -1,7 +1,7 @@
 const AddCommentUseCase = require('../../../../Applications/use_case/AddCommentUseCase');
 const DeleteCommentUseCase = require('../../../../Applications/use_case/DeleteCommentUseCase');
 
-class ThreadHandler {
+class CommentsHandler {
   constructor(container) {
     this._container = container;
 
@@ -18,14 +18,15 @@ class ThreadHandler {
       threadId: params.threadId,
       owner: auth.credentials.id,
     });
-    const response = h.response({
-      status: 'success',
-      data: {
-        addedComment,
-      },
-    });
-    response.code(201);
-    return response;
+
+    return h
+      .response({
+        status: 'success',
+        data: {
+          addedComment,
+        },
+      })
+      .code(201);
   }
 
   async deleteCommentHandler({ params, auth }, h) {
@@ -37,13 +38,8 @@ class ThreadHandler {
       owner: auth.credentials.id,
     });
 
-    const response = h
-      .response({
-        status: 'success',
-      })
-      .code(200);
-    return response;
+    return { status: 'success' };
   }
 }
 
-module.exports = ThreadHandler;
+module.exports = CommentsHandler;

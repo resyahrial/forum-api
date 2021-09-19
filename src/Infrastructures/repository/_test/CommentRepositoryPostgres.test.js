@@ -2,8 +2,6 @@ const pool = require('../../database/postgres/pool');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 
 const NewComment = require('../../../Domains/comments/entities/NewComment');
-const AddedComment = require('../../../Domains/comments/entities/AddedComment');
-const DetailComment = require('../../../Domains/comments/entities/DetailComment');
 
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
@@ -13,29 +11,26 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 
 describe('CommentRepositoryPostgres', () => {
-  let mockOwner = '';
-  let mockThreadId = '';
+  const mockOwner = 'user-123';
+  const mockThreadId = 'thread-123';
   let username = '';
-  beforeEach(async () => {
+  beforeAll(async () => {
     // mock user
     await UsersTableTestHelper.addUser({});
     const users = await UsersTableTestHelper.findUsersById('user-123');
-    mockOwner = users[0].id;
     username = users[0].username;
 
     // mock thread
     await ThreadsTableTestHelper.addThread({ owner: mockOwner });
-    const threads = await ThreadsTableTestHelper.findThreadById('thread-123');
-    mockThreadId = threads[0].id;
   });
 
   afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
-    await ThreadsTableTestHelper.cleanTable();
-    await UsersTableTestHelper.cleanTable();
   });
 
   afterAll(async () => {
+    await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
     await pool.end();
   });
 
@@ -62,33 +57,18 @@ describe('CommentRepositoryPostgres', () => {
         'comment-123'
       );
       expect(comments).toHaveLength(1);
-      expect(addedComment).toStrictEqual(
-        new AddedComment({
-          ...newCommentPayload,
-          id: 'comment-123',
-        })
-      );
+      delete newCommentPayload.threadId;
+      expect(addedComment).toStrictEqual({
+        ...newCommentPayload,
+        id: 'comment-123',
+        thread_id: mockThreadId,
+        is_delete: null,
+        date: addedComment.date,
+      });
     });
   });
 
   describe('verifyComment function', () => {
-    it('should throw NotFoundError when comment not available', async () => {
-      // Arrange
-      await CommentsTableTestHelper.addComment({
-        owner: mockOwner,
-        threadId: mockThreadId,
-      }); // memasukan user baru dengan username dicoding
-      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-
-      // Action & Assert
-      await expect(
-        commentRepositoryPostgres.verifyComment({
-          commentId: 'comment-456',
-          owner: mockOwner,
-        })
-      ).rejects.toThrowError(NotFoundError);
-    });
-
     it('should throw AuthorizationError when unauthorized user access the comment', async () => {
       // Arrange
       await CommentsTableTestHelper.addComment({
@@ -174,15 +154,48 @@ describe('CommentRepositoryPostgres', () => {
 
       // Assert
       expect(commentsFirstThread).toHaveLength(1);
-      expect(commentsFirstThread[0]).toStrictEqual(
-        new DetailComment({
-          id: 'comment-123',
-          username,
-          date: newCommentPayload.date,
-          content: newCommentPayload.content,
-        })
-      );
       expect(commentsSecondThread).toHaveLength(0);
+      delete newCommentPayload.threadId;
+      expect(commentsFirstThread[0]).toStrictEqual({
+        ...newCommentPayload,
+        id: 'comment-123',
+        username,
+        thread_id: mockThreadId,
+        is_delete: null,
+      });
+    });
+  });
+
+  describe('verifyCommentAvailability function', () => {
+    it('should throw NotFoundError when comment not available', async () => {
+      // Arrange
+      await CommentsTableTestHelper.addComment({
+        owner: mockOwner,
+        threadId: mockThreadId,
+      });
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(
+        commentRepositoryPostgres.verifyCommentAvailability('comment-456')
+      ).rejects.toThrowError(NotFoundError);
+    });
+
+    it("should success return comment's owner", async () => {
+      // Arrange
+      await CommentsTableTestHelper.addComment({
+        owner: mockOwner,
+        threadId: mockThreadId,
+      });
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // action
+      const comment = await commentRepositoryPostgres.verifyCommentAvailability(
+        'comment-123'
+      );
+
+      // Assert
+      expect(comment).toStrictEqual({ owner: mockOwner });
     });
   });
 });

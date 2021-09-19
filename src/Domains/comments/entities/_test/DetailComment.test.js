@@ -19,6 +19,7 @@ describe('DetailComment entities', () => {
       date: '2021-08-08T07:22:33.555Z',
       content: 'New Comment',
       replies: [],
+      like_count: '0',
     };
 
     // Action & Assert
@@ -35,6 +36,7 @@ describe('DetailComment entities', () => {
       date: 'asd',
       content: 'New Comment',
       replies: [],
+      like_count: '0',
     };
 
     // Action & Assert
@@ -52,6 +54,7 @@ describe('DetailComment entities', () => {
       content: 'New Comment',
       is_delete: false,
       replies: [],
+      like_count: '0',
     };
 
     // Action
@@ -63,6 +66,7 @@ describe('DetailComment entities', () => {
     expect(detailComment.username).toEqual(payload.username);
     expect(detailComment.date).toEqual(payload.date);
     expect(detailComment.content).toEqual(payload.content);
+    expect(detailComment.likeCount).toEqual(+payload.like_count);
   });
 
   it('should replace content with template if comment was deleted', () => {
@@ -74,6 +78,7 @@ describe('DetailComment entities', () => {
       content: 'New Comment',
       is_delete: true,
       replies: [],
+      like_count: '0',
     };
 
     // Action

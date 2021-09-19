@@ -146,7 +146,11 @@ describe('CommentRepositoryPostgres', () => {
         content: 'New Comment',
       };
       await CommentsTableTestHelper.addComment({ ...newCommentPayload });
-      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+      const fakeIdGenerator = () => '123';
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(
+        pool,
+        fakeIdGenerator
+      );
 
       // action
       const commentsFirstThread =
@@ -164,6 +168,7 @@ describe('CommentRepositoryPostgres', () => {
         username,
         thread_id: mockThreadId,
         is_delete: null,
+        like_count: '0',
       });
     });
   });

@@ -1,10 +1,12 @@
 class LikeUnlikeCommentUseCase {
-  constructor({ commentRepository }) {
+  constructor({ threadRepository, commentRepository }) {
+    this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
   }
 
   async execute(useCasePayload) {
     this._validatePayload(useCasePayload);
+    await this._threadRepository.getThreadById(useCasePayload.threadId);
     const isLiked = await this._commentRepository.verifyLikeComment(
       useCasePayload
     );

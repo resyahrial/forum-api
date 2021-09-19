@@ -15,4 +15,12 @@ module.exports = (handler) => [
       auth: 'forum_api_jwt',
     },
   },
+  {
+    method: 'PUT',
+    path: '/threads/{threadId}/comments/{commentId}/likes',
+    handler: handler.likeUnlikeCommentHandler,
+    options: {
+      auth: 'forum_api_jwt',
+    },
+  },
 ];

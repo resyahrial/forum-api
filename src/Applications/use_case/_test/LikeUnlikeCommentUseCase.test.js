@@ -1,4 +1,5 @@
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
+const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const LikeUnlikeCommentUseCase = require('../LikeUnlikeCommentUseCase');
 
 describe('LikeUnlikeCommentUseCase', () => {
@@ -66,9 +67,12 @@ describe('LikeUnlikeCommentUseCase', () => {
   it('should orchestrating the likeComment action correctly', async () => {
     // Arrange
     const useCasePayload = {
+      threadId: 'thread-123',
       commentId: 'comment-123',
       userId: 'user-123',
     };
+    const mockThreadRepository = new ThreadRepository();
+    mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve());
     const mockCommentRepository = new CommentRepository();
     mockCommentRepository.verifyLikeComment = jest.fn(() =>
       Promise.resolve(false)
@@ -77,6 +81,7 @@ describe('LikeUnlikeCommentUseCase', () => {
     mockCommentRepository.unlikeComment = jest.fn(() => Promise.resolve());
 
     const likeUnlikeCommentUseCase = new LikeUnlikeCommentUseCase({
+      threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
     });
 
@@ -84,6 +89,9 @@ describe('LikeUnlikeCommentUseCase', () => {
     await likeUnlikeCommentUseCase.execute(useCasePayload);
 
     // Assert
+    expect(mockThreadRepository.getThreadById).toHaveBeenCalledWith(
+      useCasePayload.threadId
+    );
     expect(mockCommentRepository.verifyLikeComment).toHaveBeenCalledWith(
       useCasePayload
     );
@@ -96,9 +104,12 @@ describe('LikeUnlikeCommentUseCase', () => {
   it('should orchestrating the unlikeComment action correctly', async () => {
     // Arrange
     const useCasePayload = {
+      threadId: 'thread-123',
       commentId: 'comment-123',
       userId: 'user-123',
     };
+    const mockThreadRepository = new ThreadRepository();
+    mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve());
     const mockCommentRepository = new CommentRepository();
     mockCommentRepository.verifyLikeComment = jest.fn(() =>
       Promise.resolve(true)
@@ -107,6 +118,7 @@ describe('LikeUnlikeCommentUseCase', () => {
     mockCommentRepository.unlikeComment = jest.fn(() => Promise.resolve());
 
     const likeUnlikeCommentUseCase = new LikeUnlikeCommentUseCase({
+      threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
     });
 
@@ -114,6 +126,9 @@ describe('LikeUnlikeCommentUseCase', () => {
     await likeUnlikeCommentUseCase.execute(useCasePayload);
 
     // Assert
+    expect(mockThreadRepository.getThreadById).toHaveBeenCalledWith(
+      useCasePayload.threadId
+    );
     expect(mockCommentRepository.verifyLikeComment).toHaveBeenCalledWith(
       useCasePayload
     );

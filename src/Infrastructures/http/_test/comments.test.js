@@ -2,6 +2,7 @@ const pool = require('../../database/postgres/pool');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
+const LikesCommentTableTestHelper = require('../../../../tests/LikesCommentTableTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
 
@@ -38,6 +39,7 @@ describe('/threads/{threadId}/comments endpoint', () => {
 
   afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
+    await LikesCommentTableTestHelper.cleanTable();
   });
 
   describe('when POST /threads/{threadId}/comments', () => {
@@ -173,6 +175,96 @@ describe('/threads/{threadId}/comments endpoint', () => {
       expect(responseJson.message).toEqual(
         'Anda tidak berhak atas comment ini'
       );
+    });
+  });
+
+  describe('when PUT /threads/{threadId}/comments/{commentId}/likes', () => {
+    const getPutRoute = (threadId, commentId) => ({
+      method: 'PUT',
+      url: `/threads/${threadId}/comments/${commentId}/likes`,
+    });
+
+    it('should response 200 and like comment succesfully', async () => {
+      // Arrange
+      const mockCommentId = 'comment-123';
+      await CommentsTableTestHelper.addComment({
+        id: mockCommentId,
+        owner: mockUserId,
+        threadId: mockThreadId,
+      });
+
+      // Action
+      const response = await createInjectServer(
+        getPutRoute(mockThreadId, mockCommentId)
+      );
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+    });
+
+    it('should response 200 and unlike comment succesfully', async () => {
+      // Arrange
+      const mockCommentId = 'comment-123';
+      await CommentsTableTestHelper.addComment({
+        id: mockCommentId,
+        owner: mockUserId,
+        threadId: mockThreadId,
+      });
+      await LikesCommentTableTestHelper.addLikes({});
+
+      // Action
+      const response = await createInjectServer(
+        getPutRoute(mockThreadId, mockCommentId)
+      );
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+    });
+
+    it('should response 404 when thread not found', async () => {
+      // Arrange
+      const mockCommentId = 'comment-123';
+      await CommentsTableTestHelper.addComment({
+        id: mockCommentId,
+        owner: mockUserId,
+        threadId: mockThreadId,
+      });
+
+      // Action
+      const response = await createInjectServer(
+        getPutRoute('thread-456', mockCommentId)
+      );
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('Thread tidak ditemukan');
+    });
+
+    it('should response 404 when comment not found', async () => {
+      // Arrange
+      const mockCommentId = 'comment-123';
+      await CommentsTableTestHelper.addComment({
+        id: mockCommentId,
+        owner: mockUserId,
+        threadId: mockThreadId,
+      });
+
+      // Action
+      const response = await createInjectServer(
+        getPutRoute(mockThreadId, 'comment-456')
+      );
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('Comment tidak ditemukan');
     });
   });
 });

@@ -7,6 +7,9 @@ class LikeUnlikeCommentUseCase {
   async execute(useCasePayload) {
     this._validatePayload(useCasePayload);
     await this._threadRepository.getThreadById(useCasePayload.threadId);
+    await this._commentRepository.verifyCommentAvailability(
+      useCasePayload.commentId
+    );
     const isLiked = await this._commentRepository.verifyLikeComment(
       useCasePayload
     );

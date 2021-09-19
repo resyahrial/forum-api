@@ -74,6 +74,9 @@ describe('LikeUnlikeCommentUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
     mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve());
     const mockCommentRepository = new CommentRepository();
+    mockCommentRepository.verifyCommentAvailability = jest.fn(() =>
+      Promise.resolve(true)
+    );
     mockCommentRepository.verifyLikeComment = jest.fn(() =>
       Promise.resolve(false)
     );
@@ -92,6 +95,9 @@ describe('LikeUnlikeCommentUseCase', () => {
     expect(mockThreadRepository.getThreadById).toHaveBeenCalledWith(
       useCasePayload.threadId
     );
+    expect(
+      mockCommentRepository.verifyCommentAvailability
+    ).toHaveBeenCalledWith(useCasePayload.commentId);
     expect(mockCommentRepository.verifyLikeComment).toHaveBeenCalledWith(
       useCasePayload
     );
@@ -111,6 +117,9 @@ describe('LikeUnlikeCommentUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
     mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve());
     const mockCommentRepository = new CommentRepository();
+    mockCommentRepository.verifyCommentAvailability = jest.fn(() =>
+      Promise.resolve(true)
+    );
     mockCommentRepository.verifyLikeComment = jest.fn(() =>
       Promise.resolve(true)
     );
@@ -129,6 +138,9 @@ describe('LikeUnlikeCommentUseCase', () => {
     expect(mockThreadRepository.getThreadById).toHaveBeenCalledWith(
       useCasePayload.threadId
     );
+    expect(
+      mockCommentRepository.verifyCommentAvailability
+    ).toHaveBeenCalledWith(useCasePayload.commentId);
     expect(mockCommentRepository.verifyLikeComment).toHaveBeenCalledWith(
       useCasePayload
     );
